@@ -19,19 +19,18 @@ A full-stack web application built with **Node.js + Express** (backend) and **Re
 
 ```
 /
-├── node-learning/        # Backend (Express.js + PostgreSQL)
+├── backend/              # Express.js REST API + PostgreSQL
 │   ├── src/
 │   │   ├── api-server.js # Main API server with Swagger docs
 │   │   ├── db.js         # PostgreSQL connection pool
 │   │   ├── server.js     # Basic HTTP server example
 │   │   ├── index.js      # Node.js entry point example
 │   │   └── migrate.js    # Database migration script
-│   ├── .env              # Environment variables (not committed)
 │   ├── .env.example      # Environment variable template
 │   ├── postman-collection.json
 │   └── API-DOCS.md
 │
-└── node+react/           # Frontend (React + Vite)
+└── frontend/             # React + Vite frontend
     ├── src/
     │   ├── api/
     │   │   └── apiService.js
@@ -67,14 +66,14 @@ CREATE TABLE users (
 Or use the migration script (after configuring `.env`):
 
 ```bash
-cd node-learning
+cd backend
 node src/migrate.js
 ```
 
 ### 2. Configure Environment Variables
 
 ```bash
-cd node-learning
+cd backend
 cp .env.example .env
 ```
 
@@ -92,23 +91,23 @@ DB_PORT=5432
 ### 3. Start the Backend
 
 ```bash
-cd node-learning
+cd backend
 npm install
 npm run api
 ```
 
-API running at: http://localhost:3002  
-Swagger Docs: http://localhost:3002/api-docs
+API available at: `http://localhost:3002`  
+Swagger UI: `http://localhost:3002/api-docs`
 
 ### 4. Start the Frontend
 
 ```bash
-cd node+react
+cd frontend
 npm install
 npm run dev
 ```
 
-Frontend running at: http://localhost:5173
+App available at: `http://localhost:5173`
 
 ---
 
