@@ -230,20 +230,209 @@ app.post('/api/users', async (req, res) => {
  * /api/products:
  *   get:
  *     summary: Get all products
- *     description: Retrieves a static list of products
+ *     description: Retrieves a list of all products from the database. Auto-seeds default products if table is empty.
  *     tags: [Products]
  *     responses:
  *       200:
  *         description: Product list retrieved successfully
  */
-app.get('/api/products', (req, res) => {
-  const products = [
-    { id: 1, name: 'Laptop', price: 50000 },
-    { id: 2, name: 'Mobile', price: 20000 },
-    { id: 3, name: 'Tablet', price: 15000 }
-  ];
+app.get('/api/products', async (req, res) => {
+  try {
+    let products = await prisma.product.findMany({ orderBy: { id: 'asc' } });
+    
+    // Auto-seed if database has no products
+    if (products.length === 0) {
+      await prisma.product.createMany({
+        data: [
+          { name: 'Gaming Laptop', price: 1299.99, description: 'High-performance gaming laptop with RTX graphics', category: 'Electronics', stock: 15 },
+          { name: 'Wireless Headphones', price: 199.99, description: 'Active noise-canceling over-ear wireless headphones', category: 'Audio', stock: 45 },
+          { name: 'Mechanical Keyboard', price: 89.99, description: 'Tactile mechanical keyboard with RGB backlighting', category: 'Accessories', stock: 30 }
+        ]
+      });
+      products = await prisma.product.findMany({ orderBy: { id: 'asc' } });
+    }
+    
+    res.json({ success: true, data: products });
+  } catch (err) {
+    console.error('Error fetching products:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
-  res.json({ success: true, data: products });
+/**
+ * @swagger
+ * /api/products/{id}:
+ *   get:
+ *     summary: Get product by ID
+ *     description: Retrieves a specific product by its ID
+ *     tags: [Products]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Product ID
+ *     responses:
+ *       200:
+ *         description: Product found
+ *       404:
+ *         description: Product not found
+ */
+app.get('/api/products/:id', async (req, res) => {
+  try {
+    const product = await prisma.product.findUnique({
+      where: { id: parseInt(req.params.id) }
+    });
+    if (product) {
+      res.json({ success: true, data: product });
+    } else {
+      res.status(404).json({ success: false, message: 'Product not found' });
+    }
+  } catch (err) {
+    console.error('Error fetching product:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+/**
+ * @swagger
+ * /api/products:
+ *   post:
+ *     summary: Create a new product
+ *     description: Creates a new product and saves it to the database
+ *     tags: [Products]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - price
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: Smart Watch
+ *               price:
+ *                 type: number
+ *                 example: 249.99
+ *               description:
+ *                 type: string
+ *                 example: Smart fitness tracker and smartwatch
+ *               category:
+ *                 type: string
+ *                 example: Wearables
+ *               stock:
+ *                 type: integer
+ *                 example: 50
+ *     responses:
+ *       201:
+ *         description: Product created successfully
+ */
+app.post('/api/products', async (req, res) => {
+  const { name, price, description, category, stock } = req.body;
+  try {
+    const newProduct = await prisma.product.create({
+      data: {
+        name,
+        price: parseFloat(price),
+        description,
+        category,
+        stock: stock ? parseInt(stock) : 0
+      }
+    });
+    res.status(201).json({ success: true, message: 'Product created successfully', data: newProduct });
+  } catch (err) {
+    console.error('Error creating product:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+/**
+ * @swagger
+ * /api/products/{id}:
+ *   put:
+ *     summary: Update a product
+ *     description: Updates an existing product details by its ID
+ *     tags: [Products]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Product ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               price:
+ *                 type: number
+ *               description:
+ *                 type: string
+ *               category:
+ *                 type: string
+ *               stock:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Product updated successfully
+ */
+app.put('/api/products/:id', async (req, res) => {
+  const { name, price, description, category, stock } = req.body;
+  try {
+    const updatedProduct = await prisma.product.update({
+      where: { id: parseInt(req.params.id) },
+      data: {
+        name,
+        price: price ? parseFloat(price) : undefined,
+        description,
+        category,
+        stock: stock !== undefined ? parseInt(stock) : undefined
+      }
+    });
+    res.json({ success: true, message: 'Product updated successfully', data: updatedProduct });
+  } catch (err) {
+    console.error('Error updating product:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+/**
+ * @swagger
+ * /api/products/{id}:
+ *   delete:
+ *     summary: Delete a product
+ *     description: Deletes a product by its ID from the database
+ *     tags: [Products]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Product ID
+ *     responses:
+ *       200:
+ *         description: Product deleted successfully
+ */
+app.delete('/api/products/:id', async (req, res) => {
+  try {
+    await prisma.product.delete({
+      where: { id: parseInt(req.params.id) }
+    });
+    res.json({ success: true, message: 'Product deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting product:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
 });
 
 // Start server
