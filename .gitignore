@@ -1,0 +1,16 @@
+# Root-level gitignore for the monorepo
+
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
