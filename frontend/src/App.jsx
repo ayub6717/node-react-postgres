@@ -11,6 +11,8 @@ const tabs = [
 
 function App() {
   const [activeTab, setActiveTab] = useState('users')
+  const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
+  const swaggerUrl = apiBaseUrl.replace('/api', '/api-docs');
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
@@ -67,17 +69,17 @@ function App() {
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-gray-50 rounded-lg px-4 py-3">
               <p className="text-xs text-gray-500 mb-0.5">Backend API</p>
-              <p className="text-sm font-mono text-gray-800">http://localhost:3002/api</p>
+              <p className="text-sm font-mono text-gray-800">{apiBaseUrl}</p>
             </div>
             <div className="bg-gray-50 rounded-lg px-4 py-3">
               <p className="text-xs text-gray-500 mb-0.5">Swagger Docs</p>
               <a
-                href="http://localhost:3002/api-docs"
+                href={swaggerUrl}
                 target="_blank"
                 rel="noreferrer"
                 className="text-sm font-mono text-blue-600 hover:underline"
               >
-                http://localhost:3002/api-docs
+                {swaggerUrl}
               </a>
             </div>
           </div>

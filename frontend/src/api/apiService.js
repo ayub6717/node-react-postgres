@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// API Base URL - tomar Node.js API
-const API_BASE_URL = 'http://localhost:3002/api';
+// API Base URL - Uses environment variable for production, falls back to local API
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
 
 // Axios instance create kora
 const api = axios.create({
