@@ -28,8 +28,12 @@ const swaggerOptions = {
     },
     servers: [
       {
+        url: process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`,
+        description: 'Primary server'
+      },
+      {
         url: `http://localhost:${PORT}`,
-        description: 'Development server'
+        description: 'Local development server'
       }
     ]
   },
