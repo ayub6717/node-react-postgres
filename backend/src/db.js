@@ -4,12 +4,12 @@ const { PrismaClient } = require('@prisma/client');
 require('dotenv').config();
 
 // Create connection pool (supports connection string for production)
+const isLocalhost = process.env.DATABASE_URL && (process.env.DATABASE_URL.includes('localhost') || process.env.DATABASE_URL.includes('127.0.0.1'));
+
 const pool = process.env.DATABASE_URL
   ? new Pool({
       connectionString: process.env.DATABASE_URL,
-      ssl: {
-        rejectUnauthorized: false
-      }
+      ssl: isLocalhost ? false : { rejectUnauthorized: false }
     })
   : new Pool({
       user: process.env.DB_USER,
