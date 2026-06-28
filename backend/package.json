@@ -4,10 +4,10 @@
   "description": "Express.js REST API with PostgreSQL and Swagger documentation",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js",
+    "start": "node src/api-server.js",
     "server": "node src/server.js",
     "api": "node src/api-server.js",
-    "dev": "node --watch src/index.js",
+    "dev": "node --watch src/api-server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
