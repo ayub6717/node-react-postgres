@@ -1,4 +1,6 @@
 const { Pool } = require('pg');
+const { PrismaPg } = require('@prisma/adapter-pg');
+const { PrismaClient } = require('@prisma/client');
 require('dotenv').config();
 
 // Create connection pool (supports connection string for production)
@@ -17,17 +19,8 @@ const pool = process.env.DATABASE_URL
       port: parseInt(process.env.DB_PORT || '5432'),
     });
 
-// Test connection
-pool.connect((err, client, release) => {
-  if (err) {
-    console.error('❌ Database connection error:', err.stack);
-  } else {
-    console.log('✅ Database connected successfully');
-    release();
-  }
-});
+// Instantiate Prisma Client with Pg Driver Adapter (Prisma 7 style)
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
-module.exports = {
-  query: (text, params) => pool.query(text, params),
-  pool
-};
+module.exports = prisma;

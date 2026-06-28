@@ -5,10 +5,10 @@ const express = require('express');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
 const cors = require('cors');
-const db = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 3002;
+const prisma = require('./db');
 
 // Middleware
 app.use(cors());
@@ -105,10 +105,10 @@ app.get('/', (req, res) => {
  */
 app.get('/api/users', async (req, res) => {
   try {
-    const result = await db.query('SELECT * FROM users ORDER BY id ASC');
+    const users = await prisma.user.findMany({ orderBy: { id: 'asc' } });
     res.json({
       success: true,
-      data: result.rows
+      data: users
     });
   } catch (err) {
     console.error('Error fetching users:', err);
@@ -154,9 +154,11 @@ app.get('/api/users', async (req, res) => {
  */
 app.get('/api/users/:id', async (req, res) => {
   try {
-    const result = await db.query('SELECT * FROM users WHERE id = $1', [req.params.id]);
-    if (result.rows.length > 0) {
-      res.json({ success: true, data: result.rows[0] });
+    const user = await prisma.user.findUnique({
+      where: { id: parseInt(req.params.id) }
+    });
+    if (user) {
+      res.json({ success: true, data: user });
     } else {
       res.status(404).json({ success: false, message: 'User not found' });
     }
@@ -206,17 +208,16 @@ app.get('/api/users/:id', async (req, res) => {
  */
 app.post('/api/users', async (req, res) => {
   const { name, email } = req.body;
-
+  
   try {
-    const result = await db.query(
-      'INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *',
-      [name, email]
-    );
-
+    const newUser = await prisma.user.create({
+      data: { name, email }
+    });
+    
     res.status(201).json({
       success: true,
       message: 'User created successfully',
-      data: result.rows[0]
+      data: newUser
     });
   } catch (err) {
     console.error('Error creating user:', err);
