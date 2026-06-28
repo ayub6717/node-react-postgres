@@ -1,10 +1,12 @@
 const { Pool } = require('pg');
 const { PrismaPg } = require('@prisma/adapter-pg');
 const { PrismaClient } = require('@prisma/client');
-require('dotenv').config();
 
 // Create connection pool (supports connection string for production)
-const isLocalhost = process.env.DATABASE_URL && (process.env.DATABASE_URL.includes('localhost') || process.env.DATABASE_URL.includes('127.0.0.1'));
+const isLocalhost = process.env.DATABASE_URL && (
+  process.env.DATABASE_URL.includes('localhost') ||
+  process.env.DATABASE_URL.includes('127.0.0.1')
+);
 
 const pool = process.env.DATABASE_URL
   ? new Pool({
